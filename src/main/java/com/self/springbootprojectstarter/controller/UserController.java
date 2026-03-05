@@ -1,6 +1,5 @@
 package com.self.springbootprojectstarter.controller;
 
-import com.self.springbootprojectstarter.DTO.UserDto;
 import com.self.springbootprojectstarter.model.User;
 import com.self.springbootprojectstarter.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -54,19 +53,19 @@ public class UserController {
 
     //post and update requests require a body for this use @requestBody
     @PostMapping
-    public ResponseEntity<User> addPerson(@RequestBody User person){
+    public ResponseEntity<User> addUsers(@RequestBody User person){
         userService.addUsers(person);
         return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePerson(@PathVariable Long id, @RequestBody User updatedUser){
+    public ResponseEntity<Void> updateUsers(@PathVariable Long id, @RequestBody User updatedUser){
         userService.updateUsers(id, updatedUser);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePerson(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUers(@PathVariable Long id){
         userService.deleteUsers(id);
         return ResponseEntity.noContent().build();
     }
