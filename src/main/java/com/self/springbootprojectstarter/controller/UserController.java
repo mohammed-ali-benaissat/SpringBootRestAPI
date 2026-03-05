@@ -70,9 +70,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     // R - Check if User Exists with a specific Email
-    @GetMapping("/exists/{name}")
-    public ResponseEntity<Boolean> checkIfUserExists(@PathVariable String name){
-        return ResponseEntity.ok(userService.checkIfUserExists(name));
-
+    @GetMapping("/exists/{email}")
+    public ResponseEntity<Boolean> emailExists(@PathVariable String email) {
+        return ResponseEntity.ok(userService.checkIfUserExists(email));
     }
 }
