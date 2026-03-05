@@ -69,7 +69,7 @@ public class UserController {
         userService.deleteUsers(id);
         return ResponseEntity.noContent().build();
     }
-
+    // R - Check if User Exists with a specific Email
     @GetMapping("/exists/{name}")
     public ResponseEntity<Boolean> checkIfUserExists(@PathVariable String name){
         return ResponseEntity.ok(userService.checkIfUserExists(name));
