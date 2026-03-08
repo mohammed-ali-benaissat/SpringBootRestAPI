@@ -4,12 +4,56 @@ package com.self.springbootprojectstarter.exception;
 import com.self.springbootprojectstarter.DTO.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.List;
 
 //This controller allows to manage exceptions and specify http status code
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fieldError -> fieldError.getDefaultMessage())
+                .toList();
+
+        String message = String.join("; ", errors);
+
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message),
+                HttpStatus.BAD_REQUEST);
+    }
+
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+//
+//        FieldError fieldError = ex.getBindingResult().getFieldError();
+//
+//        String message = fieldError != null ? fieldError.getDefaultMessage() : "Validation error";
+//
+//        ErrorResponse error = new ErrorResponse(
+//                HttpStatus.BAD_REQUEST.value(),
+//                message
+//        );
+//
+//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+//    }
+
+    // Handle duplicate user
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex){
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePersonNotFound(UserNotFoundException ex){
@@ -19,6 +63,7 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
 
     @ExceptionHandler(UserNotValidException.class)
     public ResponseEntity<ErrorResponse> handlePersonNotValid(UserNotValidException ex){

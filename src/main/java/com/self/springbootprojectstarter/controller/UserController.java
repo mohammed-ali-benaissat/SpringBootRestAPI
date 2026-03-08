@@ -1,7 +1,9 @@
 package com.self.springbootprojectstarter.controller;
 
+import com.self.springbootprojectstarter.DTO.UserDto;
 import com.self.springbootprojectstarter.model.User;
 import com.self.springbootprojectstarter.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +41,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllPeople(){
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<UserDto>> getAllPeople(){
+        List<UserDto> userDtos = userService.getAllUsers();
+        return ResponseEntity.ok(userDtos);
     }
 
     //to recognize the id in the url for specific person it must be annotated with @pathVariable
@@ -53,13 +55,13 @@ public class UserController {
 
     //post and update requests require a body for this use @requestBody
     @PostMapping
-    public ResponseEntity<User> addUsers(@RequestBody User person){
-        userService.addUsers(person);
-        return new ResponseEntity<>(person, HttpStatus.CREATED);
+    public ResponseEntity<UserDto> addUsers(@Valid @RequestBody UserDto userDto){
+        userService.addUsers(userDto);
+        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUsers(@PathVariable Long id, @RequestBody User updatedUser){
+    public ResponseEntity<Void> updateUsers(@PathVariable Long id, @Valid @RequestBody UserDto updatedUser){
         userService.updateUsers(id, updatedUser);
         return ResponseEntity.noContent().build();
     }
