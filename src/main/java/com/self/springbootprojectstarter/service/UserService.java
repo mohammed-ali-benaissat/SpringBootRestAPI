@@ -34,11 +34,7 @@ public class UserService {
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> {
-                    UserDto dto = modelMapper.map(user, UserDto.class);
-                    dto.setProfileId(user.getProfile() != null ? user.getProfile().getId() : null);
-                    return dto;
-                })
+                .map(user -> modelMapper.map(user, UserDto.class))
                 .toList();
     }
 
