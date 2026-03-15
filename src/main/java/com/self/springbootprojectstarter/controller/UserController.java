@@ -1,7 +1,6 @@
 package com.self.springbootprojectstarter.controller;
 
 import com.self.springbootprojectstarter.DTO.UserDto;
-import com.self.springbootprojectstarter.model.User;
 import com.self.springbootprojectstarter.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

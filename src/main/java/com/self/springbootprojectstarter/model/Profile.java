@@ -4,7 +4,6 @@ package com.self.springbootprojectstarter.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
@@ -20,8 +19,8 @@ public class Profile {
     @Column(name = "bio", nullable = false, length = 100)
     private String bio;
 
-    @OneToOne(mappedBy = "profile")
-    private Set<User> users = new LinkedHashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
+    private Set<User> users;
 
     public Long getId() {
         return id;

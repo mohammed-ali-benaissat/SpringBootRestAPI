@@ -2,7 +2,6 @@ package com.self.springbootprojectstarter.model;
 
 
 import jakarta.persistence.*;
-import org.springframework.context.annotation.Profile;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -17,19 +16,22 @@ public class User {
     private Long id;
 
     private String name;
+
+    @Column(unique = true)
     private String email;
+
     private int age;
 
     public User() {}
 
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
 
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Order> order = new LinkedHashSet<>();
 
 

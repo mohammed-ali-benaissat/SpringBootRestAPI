@@ -1,9 +1,9 @@
 package com.self.springbootprojectstarter.exception;
 
-public class UserNotFoundException extends RuntimeException{
+import com.self.springbootprojectstarter.config.Constants;
 
-    public UserNotFoundException(Long id){
-        //user super key to get string value?
-        super("person with id "+id+" not found");
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(Long id) {
+        super(Constants.USER_NOT_FOUND + id);
     }
 }

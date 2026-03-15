@@ -20,7 +20,7 @@ public class Category {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "categories")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
     private Set<Product> products = new LinkedHashSet<>();
 
     public Long getId() {

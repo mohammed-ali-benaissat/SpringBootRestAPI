@@ -1,6 +1,7 @@
 package com.self.springbootprojectstarter.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,11 +14,12 @@ public class Order {
     private Long id;
 
     @NotNull
-    @Column(name = "products", nullable = false, length = 100)
+    @Column(name = "product", nullable = false, length = 100)
     private String product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
+    @JsonIgnore
     private User user;
 
 
