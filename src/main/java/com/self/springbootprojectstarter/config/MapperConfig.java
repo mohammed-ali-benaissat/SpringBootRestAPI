@@ -1,8 +1,5 @@
 package com.self.springbootprojectstarter.config;
 
-import com.self.springbootprojectstarter.DTO.UserDto;
-import com.self.springbootprojectstarter.model.User;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -16,19 +13,10 @@ public class MapperConfig {
 
         ModelMapper modelMapper = new ModelMapper();
 
+        // Strict matching avoids accidental field mapping
         modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT);
-
-        Converter<User, Long> profileIdConverter = ctx ->
-                ctx.getSource().getProfile() == null
-                        ? null
-                        : ctx.getSource().getProfile().getId();
-
-        modelMapper.typeMap(User.class, UserDto.class)
-                .addMappings(mapper ->
-                        mapper.using(profileIdConverter)
-                                .map(src -> src, UserDto::setProfileId)
-                );
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setSkipNullEnabled(true);
 
         return modelMapper;
     }

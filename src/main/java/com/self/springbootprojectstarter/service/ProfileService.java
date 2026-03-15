@@ -2,6 +2,7 @@ package com.self.springbootprojectstarter.service;
 
 import com.self.springbootprojectstarter.DTO.ProfileDto;
 import com.self.springbootprojectstarter.exception.ProfileNotFoundException;
+import com.self.springbootprojectstarter.mapper.ProfileMapper;
 import com.self.springbootprojectstarter.model.Profile;
 import com.self.springbootprojectstarter.repository.ProfileRepository;
 import org.modelmapper.ModelMapper;
@@ -13,35 +14,35 @@ import java.util.List;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final ModelMapper modelMapper;
+    private final ProfileMapper profileMapper;
 
-    public ProfileService(ProfileRepository profileRepository, ModelMapper modelMapper) {
+    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper) {
         this.profileRepository = profileRepository;
-        this.modelMapper = modelMapper;
+        this.profileMapper = profileMapper;
     }
 
     public List<ProfileDto> getAllProfiles() {
         return profileRepository.findAll()
                 .stream()
-                .map(profile -> modelMapper.map(profile, ProfileDto.class))
+                .map(profileMapper::toDto)
                 .toList();
     }
 
     public ProfileDto getProfileById(Long id) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
-        return modelMapper.map(profile, ProfileDto.class);
+        return profileMapper.toDto(profile);
     }
 
-    public void addProfile(ProfileDto profileDto) {
-        Profile profile = modelMapper.map(profileDto, Profile.class);
+    public void addProfile(ProfileDto dto) {
+        Profile profile = profileMapper.toEntity(dto);
         profileRepository.save(profile);
     }
 
-    public void updateProfile(Long id, ProfileDto profileDto) {
+    public void updateProfile(Long id, ProfileDto dto) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
-        modelMapper.map(profileDto, profile);
+        profileMapper.updateEntity(dto, profile);
         profileRepository.save(profile);
     }
 
@@ -49,5 +50,11 @@ public class ProfileService {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         profileRepository.delete(profile);
+    }
+
+    // Helper method for UserMapper
+    public Profile getProfileEntityById(Long id) {
+        return profileRepository.findById(id)
+                .orElseThrow(() -> new ProfileNotFoundException(id));
     }
 }

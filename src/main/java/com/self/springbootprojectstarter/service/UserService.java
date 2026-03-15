@@ -1,95 +1,60 @@
 package com.self.springbootprojectstarter.service;
 
-import com.self.springbootprojectstarter.exception.ProfileNotFoundException;
+import com.self.springbootprojectstarter.DTO.UserDto;
 import com.self.springbootprojectstarter.exception.UserAlreadyExistsException;
 import com.self.springbootprojectstarter.exception.UserNotFoundException;
-import com.self.springbootprojectstarter.DTO.UserDto;
+import com.self.springbootprojectstarter.mapper.UserMapper;
 import com.self.springbootprojectstarter.model.User;
 import com.self.springbootprojectstarter.model.Profile;
-import com.self.springbootprojectstarter.repository.*;
+import com.self.springbootprojectstarter.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 @Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ProfileRepository profileRepository;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
-    public UserService(
-            UserRepository userRepository,
-            ProfileRepository profileRepository,
-            ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
-        this.modelMapper = modelMapper;
+        this.userMapper = userMapper;
     }
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
+                .map(userMapper::toDto)
                 .toList();
     }
 
-
-    public void addUsers(UserDto userDto) {
-        log.info("Adding new user: {}", userDto.getName());
-        if (userRepository.existsByNameAndEmailAndAge(
-                userDto.getName(),
-                userDto.getEmail(),
-                userDto.getAge()
-        )) {
-            log.warn("User already exists: {}", userDto.getName());
-            throw new UserAlreadyExistsException(userDto.getName());
-        }
-
-
-        User user = modelMapper.map(userDto, User.class);
-        if (userDto.getProfileId() != null) {
-            Profile profile = profileRepository.findById(userDto.getProfileId())
-                    .orElseThrow(() -> new ProfileNotFoundException(userDto.getProfileId()));
-            user.setProfile(profile);
-        }
-        userRepository.save(user);
-        log.info("User added successfully: {}", userDto.getName());
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        return userMapper.toDto(user);
     }
 
-
-    public void updateUsers(Long index, UserDto updatedUserDto) {
-        User user = userRepository.findById(index)
-                .orElseThrow(() -> new UserNotFoundException(index));
-
-        if (userRepository.existsByNameAndEmailAndAge(
-                updatedUserDto.getName(),
-                updatedUserDto.getEmail(),
-                updatedUserDto.getAge()
-        ) && !user.getId().equals(index)) {  // exclude current user
-            throw new UserAlreadyExistsException(updatedUserDto.getName());
-        }
-
-        modelMapper.map(updatedUserDto, user);
-        if (updatedUserDto.getProfileId() != null) {
-            Profile profile = profileRepository.findById(updatedUserDto.getProfileId())
-                    .orElseThrow(() -> new ProfileNotFoundException(updatedUserDto.getProfileId()));
-            user.setProfile(profile);
-        } else {
-            user.setProfile(null);
-        }
-
-        userRepository.save(user);
+    public UserDto addUser(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
-    public void deleteUsers(Long index) {
-        User user = userRepository.findById(index)
-                .orElseThrow(() -> new UserNotFoundException(index));
+    public UserDto updateUser(Long id, UserDto userDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        userMapper.updateEntity(userDto, user);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
+    }
 
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.delete(user);
     }
 

@@ -7,29 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
 
-
-//The rest controller is like the waiter in a restaurant
-// it is responsible for linking requests from to service layer
-// it is important to link service to controller,
-// and it is done via passing the service as a parameter in the controller constructor
-// this is called D.INJECTION  OR constructor injection
-// spring boot automatically injects service in the controller bcz
-// service has @service and controller has @restcontroller spring treat them as beans*
-
-//how is that
-
-//Instead of the controller creating the service itself like this:
-//UserService userService = new UserService(); ❌
-//Spring injects (gives) the service to the controller automatically.
-//That is Dependency Injection.
-
 @RestController
-
-//RequestMapping is an annotation that allow u to specify the mutual url
-// and mention it once for all @PGPD
 @RequestMapping("/user")
 public class UserController {
 
@@ -39,40 +19,44 @@ public class UserController {
         this.userService = userService;
     }
 
+    // ------------------- GET ALL -------------------
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllPeople(){
-        List<UserDto> userDtos = userService.getAllUsers();
-        return ResponseEntity.ok(userDtos);
+    public ResponseEntity<List<UserDto>> getAllUsers(){
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    //to recognize the id in the url for specific person it must be annotated with @pathVariable
-//    @GetMapping("/{id}")
-//    public ResponseEntity<UserDto> getUser(@PathVariable Long id){
-//        User user = userService.getUsers(id);
-//        return ResponseEntity.ok(user);
-//    }
+    // ------------------- GET BY ID -------------------
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
 
-    //post and update requests require a body for this use @requestBody
+    // ------------------- CREATE -------------------
     @PostMapping
-    public ResponseEntity<UserDto> addUsers(@Valid @RequestBody UserDto userDto){
-        userService.addUsers(userDto);
-        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+    public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserDto userDto){
+        UserDto createdUser = userService.addUser(userDto);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
+    // ------------------- UPDATE -------------------
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUsers(@PathVariable Long id, @Valid @RequestBody UserDto updatedUser){
-        userService.updateUsers(id, updatedUser);
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserDto updatedUserDto){
+        UserDto updatedUser = userService.updateUser(id, updatedUserDto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // ------------------- DELETE -------------------
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUers(@PathVariable Long id){
-        userService.deleteUsers(id);
-        return ResponseEntity.noContent().build();
-    }
-    // R - Check if User Exists with a specific Email
-    @GetMapping("/exists/{email}")
-    public ResponseEntity<Boolean> emailExists(@PathVariable String email) {
-        return ResponseEntity.ok(userService.checkIfUserExists(email));
+    // ------------------- CHECK EXISTENCE -------------------
+    @GetMapping("/exists/{name}")
+    public ResponseEntity<Boolean> nameExists(@PathVariable String name) {
+        return ResponseEntity.ok(userService.checkIfUserExists(name));
     }
 }
