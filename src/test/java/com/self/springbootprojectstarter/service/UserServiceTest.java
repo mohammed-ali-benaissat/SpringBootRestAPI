@@ -66,4 +66,46 @@ class UserServiceTest {
         assertThat(result).isEqualTo(savedDto);
         verify(userRepository).save(entity);
     }
+
+    @Test
+    void addUser_withId_throwsIllegalArgumentException() {
+        UserDto dto = new UserDto("Alice", 30, "alice@example.com");
+        dto.setId(99L);
+
+        assertThatThrownBy(() -> userService.addUser(dto))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void addUser_ageZero_throwsIllegalArgumentException() {
+        UserDto dto = new UserDto("Alice", 0, "alice@example.com");
+
+        assertThatThrownBy(() -> userService.addUser(dto))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void updateUser_mismatchedId_throwsIllegalArgumentException() {
+        UserDto dto = new UserDto("Alice", 30, "alice@example.com");
+        dto.setId(99L);
+
+        assertThatThrownBy(() -> userService.updateUser(1L, dto))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void updateUser_ageZero_throwsIllegalArgumentException() {
+        UserDto dto = new UserDto("Alice", 0, "alice@example.com");
+
+        assertThatThrownBy(() -> userService.updateUser(1L, dto))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(userRepository);
+    }
 }

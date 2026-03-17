@@ -61,6 +61,7 @@ public class UserService {
 
     // ------------------- CREATE USER -------------------
     public UserDto addUser(UserDto userDto) {
+        validateUserDtoForCreate(userDto);
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new UserAlreadyExistsException(userDto.getEmail());
         }
@@ -78,6 +79,7 @@ public class UserService {
 
     // ------------------- UPDATE USER -------------------
     public UserDto updateUser(Long id, UserDto userDto) {
+        validateUserDtoForUpdate(id, userDto);
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
@@ -111,5 +113,25 @@ public class UserService {
     // ------------------- CHECK IF USER EXISTS -------------------
     public boolean checkIfUserExists(String name){
         return userRepository.existsByName(name);
+    }
+
+    private void validateUserDtoForCreate(UserDto userDto) {
+        if (userDto.getId() != null) {
+            throw new IllegalArgumentException("Id must be null when creating a user");
+        }
+        validateAge(userDto.getAge());
+    }
+
+    private void validateUserDtoForUpdate(Long id, UserDto userDto) {
+        if (userDto.getId() != null && !userDto.getId().equals(id)) {
+            throw new IllegalArgumentException("Path id does not match body id");
+        }
+        validateAge(userDto.getAge());
+    }
+
+    private void validateAge(Integer age) {
+        if (age == null || age <= 0) {
+            throw new IllegalArgumentException("Age must be 1 or higher");
+        }
     }
 }
