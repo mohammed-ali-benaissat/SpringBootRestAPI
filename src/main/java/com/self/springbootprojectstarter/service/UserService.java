@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,10 +19,12 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfileService profileService;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, ProfileService profileService) {
         this.userRepository = userRepository;
+        this.profileService  = profileService;
         this.userMapper = userMapper;
     }
 
@@ -31,6 +34,7 @@ public class UserService {
      * @param pageable pagination info (page number, size, sorting)
      * @return Page<UserDto>
      */
+    @Transactional(readOnly = true)
     public Page<UserDto> getAllUsers(Pageable pageable) {
         // Optional: validate sort fields to prevent invalid sort errors
         List<String> allowedSortFields = List.of("id", "name", "email", "age");
@@ -48,6 +52,7 @@ public class UserService {
     }
 
     // ------------------- GET USER BY ID -------------------
+    @Transactional(readOnly = true)
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -59,7 +64,14 @@ public class UserService {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new UserAlreadyExistsException(userDto.getEmail());
         }
+
         User user = userMapper.toEntity(userDto);
+
+        // Handle Profile relation here in service
+        if (userDto.getProfileId() != null) {
+            user.setProfile(profileService.getProfileEntityById(userDto.getProfileId()));
+        }
+
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
@@ -70,13 +82,20 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         if (userDto.getEmail() != null
-                && (existingUser.getEmail() == null || !existingUser.getEmail().equals(userDto.getEmail()))
+                && !userDto.getEmail().equals(existingUser.getEmail())
                 && userRepository.existsByEmail(userDto.getEmail())) {
             throw new UserAlreadyExistsException(userDto.getEmail());
         }
 
-        // Map updated fields from DTO to entity
+        // Map basic fields
         userMapper.updateEntity(userDto, existingUser);
+
+        // Handle Profile relation here
+        if (userDto.getProfileId() != null) {
+            existingUser.setProfile(profileService.getProfileEntityById(userDto.getProfileId()));
+        } else {
+            existingUser.setProfile(null);
+        }
 
         User savedUser = userRepository.save(existingUser);
         return userMapper.toDto(savedUser);

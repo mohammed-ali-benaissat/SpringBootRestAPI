@@ -35,8 +35,8 @@ public class ProfileService {
 
     public ProfileDto addProfile(ProfileDto dto) {
         Profile profile = profileMapper.toEntity(dto);
-        profileRepository.save(profile);
-        return dto;
+        Profile savedProfile = profileRepository.save(profile);
+        return profileMapper.toDto(savedProfile);
     }
 
     public void updateProfile(Long id, ProfileDto dto) {

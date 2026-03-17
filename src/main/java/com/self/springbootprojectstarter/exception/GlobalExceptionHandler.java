@@ -133,7 +133,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Something went wrong : "+ex.getMessage()
+                "Unexpected error occurred "+ex.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

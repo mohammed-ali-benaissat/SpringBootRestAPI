@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class OrderDto {
+    private Long id;
+
     @NotBlank(message = "Product cannot be empty")
     private String product;
 
@@ -31,5 +33,13 @@ public class OrderDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

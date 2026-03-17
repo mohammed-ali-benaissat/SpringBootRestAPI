@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -68,8 +68,8 @@ public class UserController {
     }
 
     // ------------------- CHECK USER EXISTENCE -------------------
-    @GetMapping("/exists/{name}")
-    public ResponseEntity<Boolean> nameExists(@PathVariable String name) {
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> exists(@RequestParam String name) {
         return ResponseEntity.ok(userService.checkIfUserExists(name));
     }
 }

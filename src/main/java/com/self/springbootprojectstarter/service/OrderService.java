@@ -2,12 +2,14 @@ package com.self.springbootprojectstarter.service;
 
 import com.self.springbootprojectstarter.DTO.OrderDto;
 import com.self.springbootprojectstarter.exception.OrderNotFoundException;
+import com.self.springbootprojectstarter.exception.UserNotFoundException;
 import com.self.springbootprojectstarter.model.Order;
 import com.self.springbootprojectstarter.model.User;
 import com.self.springbootprojectstarter.repository.OrderRepository;
 import com.self.springbootprojectstarter.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class OrderService {
         this.modelMapper = modelMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<OrderDto> getAllOrders() {
         return orderRepository.findAll()
                 .stream()
@@ -35,6 +38,7 @@ public class OrderService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public OrderDto getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
@@ -45,18 +49,20 @@ public class OrderService {
 
     public OrderDto addOrder(OrderDto orderDto) {
         User user = userRepository.findById(orderDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(orderDto.getUserId()));
         Order order = modelMapper.map(orderDto, Order.class);
         order.setUser(user);
-        orderRepository.save(order);
-        return orderDto;
+        Order savedOrder = orderRepository.save(order);
+        OrderDto dto = modelMapper.map(savedOrder, OrderDto.class);
+        dto.setUserId(savedOrder.getUser().getId());
+        return dto;
     }
 
     public void updateOrder(Long id, OrderDto orderDto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
         User user = userRepository.findById(orderDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(orderDto.getUserId()));
         modelMapper.map(orderDto, order);
         order.setUser(user);
         orderRepository.save(order);
