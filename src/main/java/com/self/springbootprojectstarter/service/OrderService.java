@@ -43,12 +43,13 @@ public class OrderService {
         return dto;
     }
 
-    public void addOrder(OrderDto orderDto) {
+    public OrderDto addOrder(OrderDto orderDto) {
         User user = userRepository.findById(orderDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Order order = modelMapper.map(orderDto, Order.class);
         order.setUser(user);
         orderRepository.save(order);
+        return orderDto;
     }
 
     public void updateOrder(Long id, OrderDto orderDto) {

@@ -1,6 +1,7 @@
 package com.self.springbootprojectstarter.service;
 
 import com.self.springbootprojectstarter.DTO.UserDto;
+import com.self.springbootprojectstarter.exception.UserAlreadyExistsException;
 import com.self.springbootprojectstarter.exception.UserNotFoundException;
 import com.self.springbootprojectstarter.mapper.UserMapper;
 import com.self.springbootprojectstarter.model.User;
@@ -55,6 +56,9 @@ public class UserService {
 
     // ------------------- CREATE USER -------------------
     public UserDto addUser(UserDto userDto) {
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            throw new UserAlreadyExistsException(userDto.getEmail());
+        }
         User user = userMapper.toEntity(userDto);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
@@ -64,6 +68,12 @@ public class UserService {
     public UserDto updateUser(Long id, UserDto userDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (userDto.getEmail() != null
+                && (existingUser.getEmail() == null || !existingUser.getEmail().equals(userDto.getEmail()))
+                && userRepository.existsByEmail(userDto.getEmail())) {
+            throw new UserAlreadyExistsException(userDto.getEmail());
+        }
 
         // Map updated fields from DTO to entity
         userMapper.updateEntity(userDto, existingUser);

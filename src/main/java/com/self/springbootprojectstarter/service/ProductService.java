@@ -33,9 +33,10 @@ public class ProductService {
         return modelMapper.map(product, ProductDto.class);
     }
 
-    public void addProduct(ProductDto productDto) {
+    public ProductDto addProduct(ProductDto productDto) {
         Product product = modelMapper.map(productDto, Product.class);
         productRepository.save(product);
+        return productDto;
     }
 
     public void updateProduct(Long id, ProductDto productDto) {

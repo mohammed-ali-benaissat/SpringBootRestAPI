@@ -33,8 +33,8 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductDto> addProduct(@Valid @RequestBody ProductDto productDto) {
-        productService.addProduct(productDto);
-        return new ResponseEntity<>(productDto, HttpStatus.CREATED);
+        ProductDto createdProduct = productService.addProduct(productDto);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

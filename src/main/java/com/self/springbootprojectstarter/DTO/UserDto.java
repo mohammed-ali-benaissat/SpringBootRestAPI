@@ -1,7 +1,7 @@
 package com.self.springbootprojectstarter.DTO;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,9 +12,10 @@ public class UserDto {
 
     @NotBlank(message = "Email is required")
     @Email(regexp = ".+@.+\\..+", message = "Email must be valid")
-    @Column(unique = true)
     private String email;
 
+    @Min(value = 0, message = "Age must be 0 or higher")
+    @Max(value = 150, message = "Age must be 150 or lower")
     private int age;
 
     private Long profileId;

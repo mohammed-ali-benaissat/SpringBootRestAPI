@@ -33,9 +33,10 @@ public class CategoryService {
         return modelMapper.map(category, CategoryDto.class);
     }
 
-    public void addCategory(CategoryDto categoryDto) {
+    public CategoryDto addCategory(CategoryDto categoryDto) {
         Category category = modelMapper.map(categoryDto, Category.class);
         categoryRepository.save(category);
+        return categoryDto;
     }
 
     public void updateCategory(Long id, CategoryDto categoryDto) {

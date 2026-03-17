@@ -33,9 +33,9 @@ public class ProfileController {
 
     // ------------------- CREATE -------------------
     @PostMapping
-    public ResponseEntity<Void> addProfile(@Valid @RequestBody ProfileDto dto) {
-        profileService.addProfile(dto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<ProfileDto> addProfile(@Valid @RequestBody ProfileDto dto) {
+        ProfileDto createdProfile = profileService.addProfile(dto);
+        return new ResponseEntity<>(createdProfile, HttpStatus.CREATED);
     }
 
     // ------------------- UPDATE -------------------

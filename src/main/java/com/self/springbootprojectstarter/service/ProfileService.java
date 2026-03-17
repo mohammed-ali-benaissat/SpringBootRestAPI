@@ -5,7 +5,6 @@ import com.self.springbootprojectstarter.exception.ProfileNotFoundException;
 import com.self.springbootprojectstarter.mapper.ProfileMapper;
 import com.self.springbootprojectstarter.model.Profile;
 import com.self.springbootprojectstarter.repository.ProfileRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,9 +33,10 @@ public class ProfileService {
         return profileMapper.toDto(profile);
     }
 
-    public void addProfile(ProfileDto dto) {
+    public ProfileDto addProfile(ProfileDto dto) {
         Profile profile = profileMapper.toEntity(dto);
         profileRepository.save(profile);
+        return dto;
     }
 
     public void updateProfile(Long id, ProfileDto dto) {

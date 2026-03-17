@@ -3,7 +3,6 @@ package com.self.springbootprojectstarter.model;
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,11 +14,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 255)
     private String email;
 
+    @Column(nullable = false)
     private int age;
 
     public User() {}
@@ -32,15 +33,15 @@ public class User {
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Order> order = new LinkedHashSet<>();
+    private Set<Order> orders = new LinkedHashSet<>();
 
 
-    public Set<Order> getOrder() {
-        return order;
+    public Set<Order> getOrders() {
+        return orders;
     }
 
-    public void setOrder(Set<Order> order) {
-        this.order = order;
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
     }
 
     public Profile getProfile() {
