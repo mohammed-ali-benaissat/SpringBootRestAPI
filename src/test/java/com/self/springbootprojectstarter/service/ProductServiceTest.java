@@ -28,6 +28,7 @@ class ProductServiceTest {
 
     @Test
     void addProduct_returnsSavedDto() {
+        // Arrange: mapper converts DTO to entity, repository returns saved entity.
         ProductDto dto = new ProductDto("pencil");
         Product entity = new Product();
         Product saved = new Product();
@@ -40,8 +41,10 @@ class ProductServiceTest {
         when(productRepository.save(entity)).thenReturn(saved);
         when(modelMapper.map(saved, ProductDto.class)).thenReturn(savedDto);
 
+        // Act: create product.
         ProductDto result = productService.addProduct(dto);
 
+        // Assert: returned DTO reflects the saved entity (including id).
         assertThat(result).isEqualTo(savedDto);
         verify(productRepository).save(entity);
     }

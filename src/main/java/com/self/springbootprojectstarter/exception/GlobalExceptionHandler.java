@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 import java.util.UUID;
 
-//This controller allows to manage exceptions and specify http status code
+// Centralized exception-to-HTTP mapping for consistent API error responses.
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    // Collects bean validation errors into a single 400 response payload.
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -49,6 +50,7 @@ public class GlobalExceptionHandler {
 
     // Handle duplicate user
     @ExceptionHandler(UserAlreadyExistsException.class)
+    // Maps domain conflicts to HTTP 409.
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
@@ -59,6 +61,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(UserNotFoundException.class)
+    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handlePersonNotFound(UserNotFoundException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -69,6 +72,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(UserNotValidException.class)
+    // Maps custom validation failures to HTTP 400.
     public ResponseEntity<ErrorResponse> handlePersonNotValid(UserNotValidException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
@@ -78,6 +82,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ProfileNotFoundException.class)
+    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleProfileNotFound(ProfileNotFoundException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -87,6 +92,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
+    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleOrderNotFound(OrderNotFoundException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -96,6 +102,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
+    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleCategoryNotFound(CategoryNotFoundException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -105,6 +112,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
+    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleProductNotFound(ProductNotFoundException ex){
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -114,6 +122,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
+    // Maps invalid arguments to HTTP 400.
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
@@ -123,6 +132,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
+    // Maps database constraint violations to HTTP 409.
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
@@ -132,6 +142,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    // Fallback handler for unexpected errors; returns a reference id.
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex){
         String errorId = UUID.randomUUID().toString();
         log.error("Unhandled exception id={}", errorId, ex);

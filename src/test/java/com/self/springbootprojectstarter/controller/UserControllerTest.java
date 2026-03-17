@@ -35,12 +35,14 @@ class UserControllerTest {
     @Test
     @WithMockUser
     void getAllUsers_returnsPage() throws Exception {
+        // Arrange: service returns a single user page.
         UserDto dto = new UserDto("Alice", 30, "alice@example.com");
         dto.setId(1L);
         Page<UserDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
 
         when(userService.getAllUsers(any())).thenReturn(page);
 
+        // Act + Assert: endpoint returns JSON page content.
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1))

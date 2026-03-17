@@ -8,6 +8,7 @@ class SpringBootProjectStarterApplicationTests {
 
     @Test
     void contextLoads() {
+        // Smoke test: verifies that the Spring application context starts.
     }
 
 }

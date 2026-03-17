@@ -28,6 +28,7 @@ class ProfileServiceTest {
 
     @Test
     void addProfile_returnsSavedDto() {
+        // Arrange: mapper converts DTO to entity, repository returns saved entity.
         ProfileDto dto = new ProfileDto("bio");
         Profile entity = new Profile();
         Profile saved = new Profile();
@@ -40,8 +41,10 @@ class ProfileServiceTest {
         when(profileRepository.save(entity)).thenReturn(saved);
         when(profileMapper.toDto(saved)).thenReturn(savedDto);
 
+        // Act: create profile.
         ProfileDto result = profileService.addProfile(dto);
 
+        // Assert: returned DTO reflects the saved entity (including id).
         assertThat(result).isEqualTo(savedDto);
         verify(profileRepository).save(entity);
     }

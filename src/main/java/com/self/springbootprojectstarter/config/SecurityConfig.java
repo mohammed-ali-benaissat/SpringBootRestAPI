@@ -12,10 +12,12 @@ import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
+// Configures authentication/authorization rules per active Spring profile.
 public class SecurityConfig {
 
     @Bean
     @Profile("dev")
+    // Dev profile: allow Swagger docs for local development and testing.
     public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable) // Stateless API
@@ -30,6 +32,7 @@ public class SecurityConfig {
 
     @Bean
     @Profile("!dev")
+    // Non-dev profiles: deny Swagger endpoints.
     public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)

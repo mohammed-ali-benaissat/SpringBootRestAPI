@@ -28,6 +28,7 @@ class CategoryServiceTest {
 
     @Test
     void addCategory_returnsSavedDto() {
+        // Arrange: mapper converts DTO to entity, repository returns saved entity.
         CategoryDto dto = new CategoryDto("books");
         Category entity = new Category();
         Category saved = new Category();
@@ -40,8 +41,10 @@ class CategoryServiceTest {
         when(categoryRepository.save(entity)).thenReturn(saved);
         when(modelMapper.map(saved, CategoryDto.class)).thenReturn(savedDto);
 
+        // Act: create category.
         CategoryDto result = categoryService.addCategory(dto);
 
+        // Assert: returned DTO reflects the saved entity (including id).
         assertThat(result).isEqualTo(savedDto);
         verify(categoryRepository).save(entity);
     }

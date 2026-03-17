@@ -37,15 +37,18 @@ class OrderServiceTest {
 
     @Test
     void addOrder_userNotFound_throwsUserNotFoundException() {
+        // Arrange: user lookup fails.
         OrderDto dto = new OrderDto("phone", 10L);
         when(userRepository.findById(10L)).thenReturn(Optional.empty());
 
+        // Act + Assert: service translates missing user to domain exception.
         assertThatThrownBy(() -> orderService.addOrder(dto))
                 .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
     void addOrder_returnsSavedDtoWithUserId() {
+        // Arrange: user exists, mapper converts DTO to entity, repository saves.
         OrderDto dto = new OrderDto("phone", 10L);
         User user = new User();
         user.setId(10L);
@@ -61,8 +64,10 @@ class OrderServiceTest {
         when(orderRepository.save(order)).thenReturn(saved);
         when(modelMapper.map(saved, OrderDto.class)).thenReturn(savedDto);
 
+        // Act: create order.
         OrderDto result = orderService.addOrder(dto);
 
+        // Assert: returned DTO has saved id and linked user id.
         assertThat(result).isEqualTo(savedDto);
         assertThat(result.getUserId()).isEqualTo(10L);
         verify(orderRepository).save(order);
