@@ -92,11 +92,9 @@ public class UserService {
         // Map basic fields
         userMapper.updateEntity(userDto, existingUser);
 
-        // Handle Profile relation here
+        // Handle Profile relation here (only update when provided)
         if (userDto.getProfileId() != null) {
             existingUser.setProfile(profileService.getProfileEntityById(userDto.getProfileId()));
-        } else {
-            existingUser.setProfile(null);
         }
 
         User savedUser = userRepository.save(existingUser);
