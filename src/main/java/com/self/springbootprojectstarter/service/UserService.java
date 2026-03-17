@@ -35,6 +35,7 @@ public class UserService {
      * @return Page<UserDto>
      */
     @Transactional(readOnly = true)
+    // Uses repository + mapper to return DTOs and avoid exposing entities.
     public Page<UserDto> getAllUsers(Pageable pageable) {
         // Optional: validate sort fields to prevent invalid sort errors
         List<String> allowedSortFields = List.of("id", "name", "email", "age");
@@ -53,6 +54,7 @@ public class UserService {
 
     // ------------------- GET USER BY ID -------------------
     @Transactional(readOnly = true)
+    // Loads user or throws; then maps to DTO.
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -60,6 +62,7 @@ public class UserService {
     }
 
     // ------------------- CREATE USER -------------------
+    // Validates business rules, sets relationships, persists, then maps to DTO.
     public UserDto addUser(UserDto userDto) {
         validateUserDtoForCreate(userDto);
         if (userRepository.existsByEmail(userDto.getEmail())) {
@@ -78,6 +81,7 @@ public class UserService {
     }
 
     // ------------------- UPDATE USER -------------------
+    // Applies updates to an existing user, including optional profile relation.
     public UserDto updateUser(Long id, UserDto userDto) {
         validateUserDtoForUpdate(id, userDto);
         User existingUser = userRepository.findById(id)
@@ -102,6 +106,7 @@ public class UserService {
     }
 
     // ------------------- DELETE USER -------------------
+    // Deletes only if the user exists (avoids silent no-op).
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -109,10 +114,12 @@ public class UserService {
     }
 
     // ------------------- CHECK IF USER EXISTS -------------------
+    // Lightweight existence check for client-side validation.
     public boolean checkIfUserExists(String name){
         return userRepository.existsByName(name);
     }
 
+    // Prevents clients from injecting ids or invalid ages during creation.
     private void validateUserDtoForCreate(UserDto userDto) {
         if (userDto.getId() != null) {
             throw new IllegalArgumentException("Id must be null when creating a user");
@@ -120,6 +127,7 @@ public class UserService {
         validateAge(userDto.getAge());
     }
 
+    // Prevents id mismatch and enforces age rule during update.
     private void validateUserDtoForUpdate(Long id, UserDto userDto) {
         if (userDto.getId() != null && !userDto.getId().equals(id)) {
             throw new IllegalArgumentException("Path id does not match body id");
@@ -127,6 +135,7 @@ public class UserService {
         validateAge(userDto.getAge());
     }
 
+    // Shared age validation to keep rules consistent across create/update.
     private void validateAge(Integer age) {
         if (age == null || age <= 0) {
             throw new IllegalArgumentException("Age must be 1 or higher");

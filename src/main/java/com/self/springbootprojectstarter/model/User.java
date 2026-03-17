@@ -12,15 +12,19 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Database-generated primary key.
     private Long id;
 
     @Column(nullable = false, length = 100)
+    // User's display name.
     private String name;
 
     @Column(unique = true, nullable = false, length = 255)
+    // Unique email for login/identity.
     private String email;
 
     @Column(nullable = false)
+    // Age is required at the database level.
     private int age;
 
     public User() {}
@@ -28,11 +32,13 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
+    // Optional link to a profile (many users can share one profile).
     private Profile profile;
 
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Orders owned by this user; cascades delete.
     private Set<Order> orders = new LinkedHashSet<>();
 
 

@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 public class MapperConfig {
 
     @Bean
+    // Centralized ModelMapper configuration used by all mappers/services.
     public ModelMapper modelMapper() {
 
         ModelMapper modelMapper = new ModelMapper();
@@ -28,6 +29,7 @@ public class MapperConfig {
                 .setMatchingStrategy(MatchingStrategies.STRICT)
                 .setSkipNullEnabled(true);
 
+        // Prevent client-supplied ids from overwriting database ids.
         modelMapper.typeMap(UserDto.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setId));
         modelMapper.typeMap(ProfileDto.class, Profile.class)

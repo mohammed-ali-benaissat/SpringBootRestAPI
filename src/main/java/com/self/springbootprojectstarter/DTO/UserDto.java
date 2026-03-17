@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 public class UserDto {
+    // Id exposed to clients for read operations; not required on create.
     private Long id;
 
+    // Basic user fields validated at the API boundary.
     @NotBlank(message = "Name cannot be empty")
     private String name;
 
@@ -20,6 +22,7 @@ public class UserDto {
     @Max(value = 150, message = "Age must be 150 or lower")
     private Integer age;
 
+    // Relationship represented as id to keep DTOs simple and stable.
     private Long profileId;
 
     public UserDto(String name, Integer age, String email) {

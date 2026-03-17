@@ -13,13 +13,16 @@ public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+    // Database-generated primary key.
     private Long id;
 
     @NotNull
     @Column(name = "bio", nullable = false, length = 100)
+    // Short biography text.
     private String bio;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
+    // Back-reference to users linked to this profile.
     private Set<User> users;
 
     public Long getId() {

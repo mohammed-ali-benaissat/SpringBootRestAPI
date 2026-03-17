@@ -3,8 +3,10 @@ package com.self.springbootprojectstarter.DTO;
 import jakarta.validation.constraints.NotBlank;
 
 public class ProfileDto {
+    // Id exposed to clients for read operations; not required on create.
     private Long id;
 
+    // Short biography text validated at the API boundary.
     @NotBlank(message = "Bio cannot be empty")
     private String bio;
 

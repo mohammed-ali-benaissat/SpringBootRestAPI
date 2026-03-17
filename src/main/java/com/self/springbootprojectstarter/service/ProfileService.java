@@ -21,6 +21,7 @@ public class ProfileService {
     }
 
     public List<ProfileDto> getAllProfiles() {
+        // Fetch all profiles and map to DTOs for API responses.
         return profileRepository.findAll()
                 .stream()
                 .map(profileMapper::toDto)
@@ -28,18 +29,21 @@ public class ProfileService {
     }
 
     public ProfileDto getProfileById(Long id) {
+        // Load or throw, then map to DTO.
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         return profileMapper.toDto(profile);
     }
 
     public ProfileDto addProfile(ProfileDto dto) {
+        // Persist new profile and return the saved DTO (with id).
         Profile profile = profileMapper.toEntity(dto);
         Profile savedProfile = profileRepository.save(profile);
         return profileMapper.toDto(savedProfile);
     }
 
     public void updateProfile(Long id, ProfileDto dto) {
+        // Update existing profile in-place.
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         profileMapper.updateEntity(dto, profile);
@@ -47,6 +51,7 @@ public class ProfileService {
     }
 
     public void deleteProfile(Long id) {
+        // Delete only if the profile exists (avoids silent no-op).
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         profileRepository.delete(profile);
@@ -54,6 +59,7 @@ public class ProfileService {
 
     // Helper method for UserMapper
     public Profile getProfileEntityById(Long id) {
+        // Internal helper to set relations without exposing repository directly.
         return profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
     }
