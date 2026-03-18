@@ -13,6 +13,39 @@ import java.util.List;
 @RequestMapping("/profile")
 public class ProfileController {
 
+    /**
+     * 🔹 ProfileController
+     *
+     * Teaching points:
+     * 1️⃣ Handles HTTP requests for Profile
+     * 2️⃣ Uses ProfileService to perform CRUD operations
+     * 3️⃣ Returns DTOs in API responses
+     * 4️⃣ Uses @Valid to enforce DTO validations
+     *
+     * 🔗 How Profile Relates to User
+     *
+     * Entity Relation:
+     *
+     * User.profile -> ManyToOne (each User has one Profile)
+     * Profile.users -> OneToMany (Profile can have multiple users)
+     *
+     * DTO Handling:
+     *
+     * UserDto.profileId stores the ID of the Profile
+     *
+     * When creating/updating a User, UserService fetches the Profile entity using ProfileService.getProfileEntityById(id)
+     *
+     * Service Layer Flow:
+     *
+     * UserController → UserService → ProfileService (fetch Profile) → UserRepository → DB
+     *
+     * Mapper Layer:
+     *
+     * UserMapper.toDto() maps User.profile.id → UserDto.profileId
+     *
+     * Keeps API safe from exposing full Profile object
+     */
+
     private final ProfileService profileService;
 
     public ProfileController(ProfileService profileService) {

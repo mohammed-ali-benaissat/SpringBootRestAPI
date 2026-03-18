@@ -9,6 +9,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 🔹 ProfileService
+ *
+ * Teaching points:
+ * 1️⃣ Handles business logic and validations
+ * 2️⃣ Talks to repository for database operations
+ * 3️⃣ Talks to mapper to convert between entity and DTO
+ * 4️⃣ Provides helper method for UserService to fetch Profile entity safely
+ */
 @Service
 public class ProfileService {
 
@@ -20,46 +29,46 @@ public class ProfileService {
         this.profileMapper = profileMapper;
     }
 
+    // ------------------- GET ALL PROFILES -------------------
     public List<ProfileDto> getAllProfiles() {
-        // Fetch all profiles and map to DTOs for API responses.
         return profileRepository.findAll()
                 .stream()
-                .map(profileMapper::toDto)
+                .map(profileMapper::toDto) // Map entity → DTO
                 .toList();
     }
 
+    // ------------------- GET PROFILE BY ID -------------------
     public ProfileDto getProfileById(Long id) {
-        // Load or throw, then map to DTO.
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         return profileMapper.toDto(profile);
     }
 
+    // ------------------- CREATE PROFILE -------------------
     public ProfileDto addProfile(ProfileDto dto) {
-        // Persist new profile and return the saved DTO (with id).
         Profile profile = profileMapper.toEntity(dto);
         Profile savedProfile = profileRepository.save(profile);
         return profileMapper.toDto(savedProfile);
     }
 
+    // ------------------- UPDATE PROFILE -------------------
     public void updateProfile(Long id, ProfileDto dto) {
-        // Update existing profile in-place.
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         profileMapper.updateEntity(dto, profile);
         profileRepository.save(profile);
     }
 
+    // ------------------- DELETE PROFILE -------------------
     public void deleteProfile(Long id) {
-        // Delete only if the profile exists (avoids silent no-op).
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
         profileRepository.delete(profile);
     }
 
-    // Helper method for UserMapper
+    // ------------------- HELPER FOR USER SERVICE -------------------
     public Profile getProfileEntityById(Long id) {
-        // Internal helper to set relations without exposing repository directly.
+        // Used when creating/updating User to set the profile
         return profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
     }

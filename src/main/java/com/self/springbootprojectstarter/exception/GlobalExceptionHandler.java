@@ -1,6 +1,5 @@
 package com.self.springbootprojectstarter.exception;
 
-
 import com.self.springbootprojectstarter.DTO.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,143 +12,150 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 import java.util.UUID;
 
-// Centralized exception-to-HTTP mapping for consistent API error responses.
+/**
+ * 🔥 GlobalExceptionHandler = Centralized error handling for a REST API
+ *
+ * Teaching points:
+ * 1️⃣ @ControllerAdvice makes this class "global":
+ *      - Any exception thrown in a @RestController can be handled here.
+ * 2️⃣ @ExceptionHandler maps a specific exception class to a handler method.
+ * 3️⃣ Goal: return a consistent JSON structure (ErrorResponse) and HTTP status.
+ * 4️⃣ Also log exceptions for debugging without exposing stack traces to clients.
+ */
 @ControllerAdvice
-@Slf4j
+@Slf4j  // Enables logging with log.info, log.error, etc.
 public class GlobalExceptionHandler {
 
+    // ============================================================
+    // 1️⃣ HANDLE VALIDATION ERRORS
+    // ============================================================
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    // Collects bean validation errors into a single 400 response payload.
+    /**
+     * This method catches validation errors when Spring validates DTOs
+     * (@NotBlank, @Email, @Min, @Max, @NotNull annotations in UserDto, etc.)
+     */
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        // Collect all field error messages from the validation exception
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(fieldError -> fieldError.getDefaultMessage())
                 .toList();
 
+        // Combine multiple error messages into a single string
         String message = String.join("; ", errors);
 
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message),
-                HttpStatus.BAD_REQUEST);
+        // Return HTTP 400 Bad Request with structured error JSON
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
-//
-//        FieldError fieldError = ex.getBindingResult().getFieldError();
-//
-//        String message = fieldError != null ? fieldError.getDefaultMessage() : "Validation error";
-//
-//        ErrorResponse error = new ErrorResponse(
-//                HttpStatus.BAD_REQUEST.value(),
-//                message
-//        );
-//
-//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-//    }
+    // ============================================================
+    // 2️⃣ HANDLE BUSINESS LOGIC EXCEPTIONS
+    // ============================================================
 
-    // Handle duplicate user
     @ExceptionHandler(UserAlreadyExistsException.class)
-    // Maps domain conflicts to HTTP 409.
+    /**
+     * Handles domain-specific exception when creating a user that already exists
+     * Maps to HTTP 409 Conflict
+     */
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage()
-        );
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-
     @ExceptionHandler(UserNotFoundException.class)
-    // Maps missing resources to HTTP 404.
-    public ResponseEntity<ErrorResponse> handlePersonNotFound(UserNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
+    /**
+     * Handles "resource not found" exception
+     * Maps to HTTP 404 Not Found
+     */
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex){
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-
     @ExceptionHandler(UserNotValidException.class)
-    // Maps custom validation failures to HTTP 400.
-    public ResponseEntity<ErrorResponse> handlePersonNotValid(UserNotValidException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage()
-        );
+    /**
+     * Handles custom business validation failure
+     * Maps to HTTP 400 Bad Request
+     */
+    public ResponseEntity<ErrorResponse> handleUserNotValid(UserNotValidException ex){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    // Similarly handle related entity not found exceptions
     @ExceptionHandler(ProfileNotFoundException.class)
-    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleProfileNotFound(ProfileNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
-    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleOrderNotFound(OrderNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
-    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleCategoryNotFound(CategoryNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    // Maps missing resources to HTTP 404.
     public ResponseEntity<ErrorResponse> handleProductNotFound(ProductNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()),
+                HttpStatus.NOT_FOUND);
     }
 
+    // ============================================================
+    // 3️⃣ HANDLE STANDARD JAVA / DATABASE EXCEPTIONS
+    // ============================================================
+
     @ExceptionHandler(IllegalArgumentException.class)
-    // Maps invalid arguments to HTTP 400.
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    /**
+     * Handles invalid arguments passed to methods
+     * Maps to HTTP 400 Bad Request
+     */
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex){
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    // Maps database constraint violations to HTTP 409.
-    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                "Data integrity violation"
-        );
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    /**
+     * Handles database constraint violations (e.g., unique constraint)
+     * Maps to HTTP 409 Conflict
+     */
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex){
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.CONFLICT.value(), "Data integrity violation"),
+                HttpStatus.CONFLICT);
     }
 
+    // ============================================================
+    // 4️⃣ FALLBACK / GENERAL EXCEPTION HANDLER
+    // ============================================================
+
     @ExceptionHandler(Exception.class)
-    // Fallback handler for unexpected errors; returns a reference id.
+    /**
+     * Handles all unanticipated exceptions
+     * - Logs the exception with a unique reference ID
+     * - Returns a safe HTTP 500 Internal Server Error message
+     */
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex){
+        // Generate unique ID for debugging
         String errorId = UUID.randomUUID().toString();
+
+        // Log full stack trace + reference ID for developers
         log.error("Unhandled exception id={}", errorId, ex);
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Unexpected error occurred. Reference: " + errorId
-        );
+
+        // Return safe error message to client
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Unexpected error occurred. Reference: " + errorId);
+
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
