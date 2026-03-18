@@ -1,0 +1,137 @@
+=====================================================
+         SPRING BOOT REST API FLOW & ENTITY RELATIONS
+=====================================================
+
+DATABASE LAYER:
+---------------
+Tables: users, profile, orders, product, category
+
+Users Table
++----+-------+-------------------+-----+------------+
+| id | name  | email             | age | profile_id |
++----+-------+-------------------+-----+------------+
+- profile_id is a FK to profile table
+- id is primary key
+- age, email validated at DB level
+
+Profile Table
++----+-------+
+| id | bio   |
++----+-------+
+- One Profile can have MANY Users (1:N)
+- Users link to Profile via profile_id
+
+Orders Table
++----+---------+---------+
+| id | user_id | product |
++----+---------+---------+
+- Many Orders can belong to one User (N:1)
+
+Products Table
++----+---------+
+| id | name    |
++----+---------+
+- Linked to Orders or Categories
+
+Categories Table
++----+---------+
+| id | name    |
++----+---------+
+- Linked to Products
+
+-----------------------------------------------------
+JAVA LAYER (Spring Boot)
+-----------------------------------------------------
+Entity Classes (model)
+- User, Profile, Order, Product, Category
+- Represent database tables
+- Use JPA annotations (@Entity, @Id, @ManyToOne, @OneToMany, etc.)
+- Relationships mirror DB foreign keys
+
+DTO Classes (API Layer)
+- UserDto, ProfileDto, OrderDto, ProductDto, CategoryDto
+- Used to expose only required info to clients
+- Prevent exposing internal entities
+- Include validation annotations (@NotBlank, @Email, @Min, etc.)
+
+Mapper Classes
+- UserMapper, ProfileMapper, etc.
+- Converts between Entity <-> DTO
+- Handles relations carefully (e.g., ProfileId instead of full Profile object)
+- Can skip client-supplied IDs
+
+Repository Interfaces
+- UserRepository, ProfileRepository, etc.
+- Extend JpaRepository<Entity, ID>
+- Provides CRUD + query methods
+- Optional: @EntityGraph to eagerly fetch relations if needed
+
+Service Layer
+-------------
+- UserService, ProfileService, etc.
+- Contains business logic
+- Calls repository methods
+- Uses Mapper to convert Entity <-> DTO
+- Handles validations (age, email uniqueness)
+- Manages relationships (User ↔ Profile)
+- Example flow:
+   Controller → Service → Repository → DB → Service → Mapper → DTO → Controller → JSON response
+
+Controller Layer (API Endpoints)
+--------------------------------
+- UserController, ProfileController, etc.
+- Maps HTTP requests to Service methods
+- Handles GET, POST, PUT, DELETE
+- Uses ResponseEntity to control HTTP status and response body
+- Example:
+   GET /users → userService.getAllUsers(pageable) → Page<UserDto> → JSON response
+
+Exception Handling
+------------------
+- GlobalExceptionHandler (@ControllerAdvice)
+- Maps exceptions to proper HTTP responses (400, 404, 409, 500)
+- Handles validation, missing entities, duplicates, etc.
+- Keeps API consistent and clean
+
+Security Layer
+--------------
+- SecurityConfig.java
+- Defines dev vs prod rules
+- Controls access to endpoints
+- Enables/disables Swagger endpoints
+- Uses basic authentication for simplicity
+
+DTO Validation Flow
+-------------------
+UserController receives POST /users
+   |
+   v
+@Valid triggers validation annotations in UserDto
+   |
+   v
+If valid → passes to UserService
+If invalid → GlobalExceptionHandler returns 400 + error messages
+
+Pagination Flow
+---------------
+GET /users?page=0&size=10&sort=name,asc
+   |
+   v
+UserController → userService.getAllUsers(pageable)
+   |
+   v
+Repository returns Page<User> from DB
+   |
+   v
+Mapper converts Page<User> → Page<UserDto>
+   |
+   v
+Controller returns JSON with:
+{
+  content: [...],
+  pageable: {pageNumber, pageSize, sort},
+  totalPages: n,
+  totalElements: x
+}
+
+=====================================================
